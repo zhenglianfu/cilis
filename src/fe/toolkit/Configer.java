@@ -9,14 +9,31 @@ import java.util.Properties;
 
 public class Configer {
 	
-	private static Map<String, String> config;
+	public static final String PROPERTIES_RENAME = "rename";
+
+	public static final String PROPERTIES_MD5 = "md5";
+
+	public static final String PROPERTIES_ROOT = "root";
+
+	public static final String PROPERTIES_DIR = "dir";
+
+	public static final String PROPERTIES_PUBLIC = "public";
+
+	public static final String PROPERTIES_RESOURCE = "resource";
 	
-	public static Map<String, String> getConfig() throws IOException{
+	public static final String PROPERTIES_HTML     = "html";
+	
+	public static final String PROPERTIES_KEEP_FILENAME = "keepfilename";
+	
+	private static Map<String, String> config;
+
+	public static Map<String, String> getConfig() throws IOException {
 		if (null != config) {
 			return config;
 		}
 		config = new HashMap<String, String>();
-		InputStream in = Configer.class.getClassLoader().getResourceAsStream("resource" + File.separator + "config.properties");
+		InputStream in = Configer.class.getClassLoader().getResourceAsStream(
+				"resource" + File.separator + "config.properties");
 		Properties properties = new Properties();
 		properties.load(in);
 		for (Object obj : properties.keySet()) {
@@ -24,6 +41,5 @@ public class Configer {
 		}
 		return config;
 	}
-	
-	
+
 }
