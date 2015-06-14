@@ -7,22 +7,17 @@
 #include <string.h>
 #include <sys/types.h>   
 #include <dirent.h>
+// constant
 #define BUFF_SIZE 2048
 #define BUFF_LITE_SIZE 256
+
 FILE* read_file(char* path);
 int read_line(FILE* stream);
 int copydir(char* source, char* target);
 int copyfile(char* source, char* target);
 
 int main(int argc, char* argv[]){
-	char* tagdirpath = "e:/c/copy/copy";
-	if (access(tagdirpath, 0) == -1) {
-		if (mkdir(tagdirpath) == -1) {
-			printf("创建目录 \"%s/\" 失败, 请先手动创建该目录后再执行\n", tagdirpath);	
-		} else {
-			printf("创建目录\"%s\"成功\n", tagdirpath); 
-		}	
-	}
+	copydir("e:/c", "e:/c");
 	return 0;
 }
 
@@ -52,6 +47,22 @@ int copydir(char* source, char* target){
 	if (access(target, 0) != 0) {
 		mkdir(target);
 	}
+	// read dir 
+	struct dirent *ptr;
+	while((ptr = readdir(srcdir)) != NULL){
+		// 跳过当前目录和父目录 
+		if (strcmp(ptr->d_name, ".") == 0 || strcmp(ptr->d_name, "..") == 0) {
+			continue;
+		}
+		// 其中程序中win不支持文件类型（d_type），可以根据文件名称后缀来判断文件类型；linux可以直接使用d_type判断是目录还是文件。
+		#ifdef _WIN32
+			printf("d_name: %s\n", ptr->d_name);
+		#endif
+		#ifdef __linux
+            printf("d_type:%d d_name: %s\n", ptr->d_type,ptr->d_name);
+        #endif
+	}
+	closedir(srcdir);
 	return 0;
 }
 
