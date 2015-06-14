@@ -10,49 +10,51 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
  * @author Administrator
  * @version 1.0 alpha html parser made in JAVA
  */
-public class HtmlScanner {
+public class HtmlParser {
+	
+	private static final Pattern SRC_TAG_PATTERN = Pattern.compile("<(img|link|script).* (src|href)\\s*=\\s*[\"|'](.+)[\"|']", Pattern.CASE_INSENSITIVE);
+	
+	private static final Pattern SRC_PATTERN     = Pattern.compile("(src|href)\\s*=\\s*[\"|'](.+)[\"|']", Pattern.CASE_INSENSITIVE);
 	
 	private Map<String, Resource> resourceMap;
 	
 	private FileReader reader;
 	
-	private HtmlScanner() {}
+	private HtmlParser() {}
 	
-	public static HtmlScanner getInstance(File html) throws FileNotFoundException {
+	public static HtmlParser getInstance(File html) throws FileNotFoundException {
 		return getInstance(new FileReader(html));
 	}
 	
-	public static HtmlScanner getInstance(FileReader html){
-		HtmlScanner htmlParser = new HtmlScanner();
+	public static HtmlParser getInstance(FileReader html){
+		HtmlParser htmlParser = new HtmlParser();
 		htmlParser.reader = html;
 		return htmlParser;
 	}
 	
 	public Map<String, Resource> parseResource(String root, String parent) throws IOException {
-		root   = root   == null ? Util.CLASSPATH : root;
-		parent = parent == null ? root           : parent;
+		root = root == null ? "" : root;
+		parent = parent == null ? "" : root;
 		this.resourceMap = new HashMap<String, Resource>();
 		BufferedReader bufferReader = new BufferedReader(this.reader);
 		String line = bufferReader.readLine();
 		List<String> uris = new ArrayList<String>();
 		while(line != null){
-			Matcher match = Util.SRC_TAG_PATTERN.matcher(line);
+			Matcher match = SRC_TAG_PATTERN.matcher(line);
 			if (match.find()) {
 				String piece = match.group();
-				String[] pieces = piece.split(Util.TAG_SPLIT);
-				for (int i = 0; i < pieces.length; i++) {
-					Matcher pieceMatch = Util.SRC_PATTERN.matcher(pieces[i]);
-					if (pieceMatch.find()) {
-						String attr  = pieceMatch.group();
-						String[] items = attr.split("=");
-						uris.add(trimQuoteRound(join(slice(items, 1), "=")));
-					}
+				Matcher pieceMatch = SRC_PATTERN.matcher(piece);
+				if (pieceMatch.find()) {
+					String attr  = pieceMatch.group();
+					String[] items = attr.split("=");
+					uris.add(trimQuoteRound(join(slice(items, 1), "=")));
 				}
 			}
 			line = bufferReader.readLine();
@@ -62,8 +64,8 @@ public class HtmlScanner {
 		path.setParent(parent);
 		path.setRoot(root);
 		for (int i = 0; i < uris.size(); i ++) {
-			String uri = uris.get(i);
-			this.resourceMap.put(uri, Resource.parseURI(path.caculatePath(uri), uri));
+			String uri = path.caculatePath(uris.get(i));
+			this.resourceMap.put(uri, Resource.parseURI(uri, uris.get(i)));
 		}
 		return this.resourceMap;
 	}
@@ -105,6 +107,14 @@ public class HtmlScanner {
 			s += arr[i] + separator;
 		}
 		return s.substring(0, s.length() - separator.length());
+	}
+	
+	public static void main(String[] args) throws IOException {
+		String root = Configer.getConfig().get("root");
+		root = Util.isEmpty(root) ? new File("").getAbsolutePath().replace(File.separator, Path.separator) : root; 
+		File html = new File("src/resource/test.html");
+		HtmlParser parser = HtmlParser.getInstance(html);
+		System.out.println(parser.parseResource(root, root));
 	}
 
 }

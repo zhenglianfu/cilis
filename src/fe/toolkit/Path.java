@@ -10,8 +10,7 @@ public class Path {
 	private String parent;
 
 	public String caculatePath(String child){
-		String path = this.parent + "/";
-		path = path.replace("\\", "/");
+		String path = this.parent + separator;
 		if (child != null) {
 			if (child.indexOf("/") == 0) {
 				path = this.root + child;
