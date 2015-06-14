@@ -15,14 +15,14 @@ int copydir(char* source, char* target);
 int copyfile(char* source, char* target);
 
 int main(int argc, char* argv[]){
-	FILE *fp = read_file("blank.txt");
-	if (fp == NULL){
-		printf("file is not found");
-		return -1;
+	char* tagdirpath = "e:/c/copy/copy";
+	if (access(tagdirpath, 0) == -1) {
+		if (mkdir(tagdirpath) == -1) {
+			printf("创建目录 \"%s/\" 失败, 请先手动创建该目录后再执行\n", tagdirpath);	
+		} else {
+			printf("创建目录\"%s\"成功\n", tagdirpath); 
+		}	
 	}
-	read_line(fp);
-	fclose(fp);
-	copyfile("main_banner_11.png", "main_banner_11_temp.png");
 	return 0;
 }
 
@@ -48,6 +48,7 @@ int copydir(char* source, char* target){
 		printf("directory %s is not existed\n", source);
 		return -1;
 	}
+	// if targte dir is not existed, create it
 	if (access(target, 0) != 0) {
 		mkdir(target);
 	}
@@ -73,6 +74,10 @@ int copyfile(char* source, char* target){
 	}
 	fclose(src);
 	fclose(t);
+}
+
+char* getParentPath(char* path){
+	
 }
 
 
