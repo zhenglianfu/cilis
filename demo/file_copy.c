@@ -15,9 +15,12 @@ FILE* read_file(char* path);
 int read_line(FILE* stream);
 int copydir(char* source, char* target);
 int copyfile(char* source, char* target);
+char* getParentPath(char* path, char* dir);
 
 int main(int argc, char* argv[]){
 	copydir("e:/c", "e:/c");
+	char* p = getParentPath("/name.txt", "e:/c/copy");
+	printf("%s", p);
 	return 0;
 }
 
@@ -87,8 +90,38 @@ int copyfile(char* source, char* target){
 	fclose(t);
 }
 
-char* getParentPath(char* path){
-	
+char* getParentPath(char* path, char* dir){
+	while (path[0] == '.'){
+		if (strstr(path, "..") != NULL){
+			int count = strlen(path) - 3;
+			char temp[count];
+			strncpy(temp, strstr(path, "../"), count);
+			path = temp;
+			printf("path: if ../ %s", path);
+		} else if (strstr(path, "./") != NULL){
+			int count = strlen(path) - 2;
+			char temp[count];
+			strncpy(temp, strstr(path, "./"), count);
+			path = temp;
+			printf("path: if ./ %s", path);
+		} else {
+			int count = strlen(path) - 1;
+			char temp[count];
+			strncpy(temp, strchr(path, '.'), count);
+			path = temp;
+			printf("path: if . %s", path);
+		}	
+	}
+	if (strchr(path, '/') != NULL){
+		printf("if / path: %s\n", path);
+	} else{
+		
+	}
+	char dest[strlen(path) + strlen(dir)];
+	char* ret = dest;
+	strcpy(ret, dir);
+	strcat(ret, path);
+	return ret;
 }
 
 
